@@ -16,7 +16,7 @@ module register_file (
 		registers[3] <= 8'b00000000;
 	end
 
-	always@(posedge clk or reset) begin
+	always@(posedge clk or posedge reset) begin
 		if(reset) begin
 			registers[0] <= 8'b00000000;
 			registers[1] <= 8'b00000000;
