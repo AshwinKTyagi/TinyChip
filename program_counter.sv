@@ -1,7 +1,7 @@
 module program_counter(
-	input[9:0] next,
+	input[8:0] next,
 	input reset, clk, write,
-	output logic[9:0] result	
+	output logic[8:0] result	
 );
 
 	always@(posedge clk or posedge reset)
