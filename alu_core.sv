@@ -2,7 +2,7 @@
 module alu_core
 #(parameter N=8) (
   input logic[N-1:0] operand1, operand2,
-  input logic[3:0] operation,
+  input logic[2:0] operation,
   output logic[(2*N)-1:0] alu_out
 );
 
@@ -13,7 +13,7 @@ module alu_core
 			3'b001: // logical and
 				alu_out = operand1 & operand2;
 			3'b010: // subtract
-				alu_out = operand1 - (~operand2 + 1);
+				alu_out = operand1 + (~operand2 + 1);
 			3'b011: // logical or
 				alu_out = operand1 | operand2;
 			3'b100: // bitwise xor
@@ -22,7 +22,7 @@ module alu_core
 				alu_out = operand1 * operand2;
 			3'b110: // div
 				alu_out = operand1 / operand2;
-			3'b101:  begin// set less than
+			3'b111:  begin// set less than
 				if (operand1 < operand2)
 					alu_out = operand1;
 				else
