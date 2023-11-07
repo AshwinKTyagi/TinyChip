@@ -54,8 +54,8 @@ module controller (
 	
 	//handle alu
 	alu_core alu_module #(2)(
-		operand1=dat1,
-		operand2=dat2,
+		operand1=data1,
+		operand2=data2,
 		operation=opcode,
 		//outputs
 		alu_out=alu_out
@@ -74,10 +74,9 @@ module controller (
 	
 	
 	always@(posedge clk) begin
-		//TODO: update dat1 to get contents from reg1
 		
 		if(funct) //funct == 1 means immediate mode
-			dat2<=
+			dat2<=immed_val;
 		if(bit_type) begin //bit_type = 1 --> immeditate
 			case(operation) 
 				3'b010: //beq - TODO: needs implementation for taking the branch
@@ -85,8 +84,15 @@ module controller (
 				3'b011: //bne
 					out <= (dat1 != immed_val);
 				3'b100: begin//lw
+					mem_read <= 1;
+					addr <= dat2;
+					out <= data_from_mem;
 				end
-				3'b101: begin//sw 
+				3'b101: begin//sw
+					mem_write <= 1;
+					dat_write <= dat2;
+					addr <= dat1;
+					out <= data_from_mem;
 				end
 				3'b110: //srl
 					out <= dat1 >>> immed_val;
