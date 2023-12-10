@@ -6,7 +6,7 @@ module data_memory (
 
 );
 
-	memory[7:0] mem[0:256];
+	logic[7:0] mem[0:256];
 
 	always@(posedge clk) begin
 		if(mem_write)
@@ -17,5 +17,4 @@ module data_memory (
 	end 
 	
 	
-	end
 endmodule: data_memory

@@ -7,7 +7,7 @@ module register_file (
 );
 
 	//only 4 registers used indexed using 2 bits
-	reg[3:0] registers;
+	logic[7:0] registers[0:4];
 	
 	initial begin
 		registers[0] <= 8'b00000000;
