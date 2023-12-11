@@ -15,6 +15,5 @@ module data_memory (
 		if(mem_read)
 			read_data <= mem[addr];
 	end 
-	
-	
+		
 endmodule: data_memory

@@ -59,7 +59,7 @@ module controller (
 	);
 	
 	//handle alu
-	alu_core #(.N(3)) alu_module (
+	alu_core #(.N(8)) alu_module (
 		.operand1(data1),
 		.operand2(alu_data2),
 		.operation(opcode),
@@ -80,10 +80,6 @@ module controller (
 	
 	
 	always@(posedge clk) begin
-		
-		//if(funct) //funct == 1 means immediate mode
-		//double check this bc idk if we need to have funct and bittype to diff immed vs reg
-		//	alu_data2<=immed_val;
 			
 		if(bit_type) begin //bit_type = 1 --> immeditate
 			immed_val <= reg_op;
@@ -108,16 +104,17 @@ module controller (
 				3'b110: //srl
 					out <= data1 >>> immed_val;
 				default: begin
-					alu_data2 <= immed_val;
+					alu_data2 <= {immed_val, funct};
 					out <= alu_out; //handles addi, andi, slti
 				end
 			endcase
 		end
 		else begin //bit_type  = 0 --> register
 			//TODO: update dat2 to get contents from reg2
-			case(opcode) //need to come up with opcode for jump still
-				3'b111: begin //slt
-					alu_data2 <= data2;
+			case({funct, opcode}) //when funct = 1, 000->j, 
+				4'b1000: begin //jump when funct bit 1 and opcode 0
+					//TODO: do something here
+					alu_data2 <= 0;
 					out <= alu_out;
 				end
 				default: begin
