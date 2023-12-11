@@ -1,16 +1,16 @@
 module instruction_memory (
 	input logic[7:0] addr, //change size of address depending on size of memory: initially 8bits
 	input logic clk, reset,
-	output logic[8:0] instruct,
+	output logic[8:0] instruct
 );
 
 	logic[8:0] mem[0:256];
 	
-	
 	initial begin
 		//init memory
-		mem[0] = 9'b000000000
-		//subject to change depending on requirements
+		mem[0] = 9'b000000000;
+		//change to read in from file with instructions in it
+		//$readmemh("code.txt",mem);
 	end
 
 	always_ff @(posedge clk or posedge reset) begin

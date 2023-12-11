@@ -2,18 +2,30 @@
 `include "register_file.sv"
 `include "control_decoder.sv"
 `include "data_memory.sv"
+`include "program_counter.sv"
+`include "instruction_memory.sv"
 module controller (
-	input logic[8:0] instruction,
 	input logic clk, reset,
 	output logic[8:0] output_data
 	); 
 	
+	
+	//local controller variables
 	logic[8:0] out;
+	
+	//pc variables
+	logic pc_write = 0;
+	logic[7:0] jump, pc_result;
+	
+	//instruction handling
+	logic[8:0] instruction;
+	
 	//output from cd_module
 	logic[1:0] reg_dest, reg_op, immed_val;
 	logic bit_type;
 	logic[2:0] opcode;
 	logic[1:0] funct;
+	
 	//output from alu
 	logic[3:0] alu_out;
 	
@@ -31,6 +43,24 @@ module controller (
 	logic mem_write = 0;
 	//output from data_memory file
 	logic[7:0] data_from_mem;
+
+	
+	//program counter
+	program_counter pc(
+		.reset(reset),
+		.clk(clk),
+		.write(pc_write),
+		.jump_target(jump),
+		.result(pc_result)
+	);
+	
+	//instruction memory -- retrieves instruction from memory given address
+	instruction_memory im_module(
+		.addr(pc_result),
+		.clk(clk),
+		.reset(reset),
+		.instruct(instruction)
+	);
 	
 	//decode instructions
 	control_decoder cd_module(
@@ -77,7 +107,7 @@ module controller (
 		.read_data(data_from_mem)
 	);
 	
-	
+
 	
 	always@(posedge clk) begin
 			
