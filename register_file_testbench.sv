@@ -9,9 +9,10 @@ module register_file_testbench;
     register_file RF (
         .reg1(reg1),
         .reg2(reg2),
-        .reg_write(reg_write),
+        .reg_w(reg_write),
         .clk(clk),
         .reset(reset),
+		  .do_write(do_write),
         .write_data(write_data),
         .data1(data1),
         .data2(data2)

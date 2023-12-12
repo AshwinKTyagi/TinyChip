@@ -143,9 +143,8 @@ module controller (
 			//TODO: update dat2 to get contents from reg2
 			case({funct, opcode}) //when funct = 1, 000->j, 
 				4'b1000: begin //jump when funct bit 1 and opcode 0
-					//TODO: do something here
-					alu_data2 <= 0;
-					out <= alu_out;
+					jump <= data2;
+					out <= pc_result;
 				end
 				default: begin
 					alu_data2 <= data2;

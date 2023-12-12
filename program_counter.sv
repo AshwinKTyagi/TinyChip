@@ -1,31 +1,29 @@
 module program_counter(
-	input[8:0] jump_target,
+	input[31:0] jump_target,
 	input reset, clk, write,
-	output logic[8:0] result	
+	output logic[31:0] result	
 );
 	//pc local variables
-	logic[8:0] current;
+	logic[31:0] current, next;
 
 	initial begin
 		current <= '0;
-		result <= '0;
+		next <= '0;
 	end
 
 	always@(posedge clk or posedge reset)
 	begin
 		if(reset)
-			result = '0;
+			next = '0;
 		else begin
-			result <= current + 4;
 			if(write)
-				result <= jump_target;
-				
+				next = jump_target;
+			else 
+				next = current + 4;
+			current = next;
 		end
 	end
-	
-	always@(negedge clk) begin
-		current <= result;
-	end
-	
+		
+	assign result = next;
 
 endmodule: program_counter

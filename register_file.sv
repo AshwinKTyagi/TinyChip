@@ -7,7 +7,8 @@ module register_file (
 );
 
 	//only 4 registers used indexed using 2 bits
-	logic[7:0] registers[0:4];
+	logic[7:0] registers[0:3];
+	logic[7:0] d1, d2;
 	
 	initial begin
 		registers[0] <= 8'b00000000;
@@ -28,8 +29,12 @@ module register_file (
 	
 	end
 	always@(negedge clk) begin
-		data1 <= registers[reg1];
-		data2 <= registers[reg2];
+		d1 <= registers[reg1];
+		d2 <= registers[reg2];
 	end
 
+	assign data1 = d1;
+	assign data2 = d2;
+
+	
 endmodule: register_file
