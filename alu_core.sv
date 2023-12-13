@@ -1,6 +1,6 @@
 // 1-bit ALU core code
 module alu_core
-#(parameter N=3) (
+#(parameter N=8) (
   input logic[N-1:0] operand1, operand2,
   input logic[2:0] operation,
   output logic[(2*N)-1:0] alu_out

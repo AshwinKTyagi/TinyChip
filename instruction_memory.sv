@@ -8,10 +8,10 @@ module instruction_memory (
 	
 	initial begin
 		//init memory
-		mem[0] = 9'b110001111; //load r1 with #7
-		mem[1] = 9'b110011101; //load r3 with #5
-		mem[2] = 9'b110101000; //store r1 at addr(0)
-		mem[3] = 9'b110111010; //store r2 at addr(3)
+		mem[0] = 9'b100001111; //add #7 to r1
+		mem[1] = 9'b110101011; //str r3 from mem #3
+		mem[2] = 9'b1; //mult r1 by 0
+		mem[3] = 9'b; //store r2 at addr(3)
 		//change to read in from file with instructions in it
 		//$readmemh("code.txt",mem);
 	end

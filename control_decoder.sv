@@ -5,7 +5,7 @@ module control_decoder(
   output logic[2:0] oc,
   output logic[1:0] rd,
   output logic[1:0] ro,
-  output logic[1:0] fn
+  output logic fn
 );
 	
 	always_comb begin

@@ -21,7 +21,8 @@ module controller (
 	logic[8:0] instruction;
 	
 	//output from cd_module
-	logic[1:0] reg_dest, reg_op, immed_val;
+	logic[1:0] reg_dest, reg_op;
+	logic[2:0] immed_val;
 	logic bit_type;
 	logic[2:0] opcode;
 	logic[1:0] funct;
@@ -109,11 +110,13 @@ module controller (
 	
 
 	
-	always@(posedge clk) begin
+	always@(posedge clk) begin // for bit type 1: addi, store funct name, beq, bne
 			
 		if(bit_type) begin //bit_type = 1 --> immeditate
-			immed_val <= reg_op;
+			immed_val <= {reg_op, funct);
 			case(opcode) 
+
+				
 				3'b010: //beq - TODO: needs implementation for taking the branch
 					out <= (data1 == immed_val);
 				3'b011: //bne
@@ -131,11 +134,13 @@ module controller (
 					data_address <= data1;
 					out <= data2;
 				end
-				3'b110: //srl
+				3'b110: //shift right
 					out <= data1 >>> immed_val;
+				3'b111: //shift left
+					out <= data1 <<< immed_val;
 				default: begin
-					alu_data2 <= {immed_val, funct};
-					out <= alu_out; //handles addi, andi, slti
+					alu_data2 <= {'0, immed_val, funct};
+					out <= alu_out; //handles addi,
 				end
 			endcase
 		end

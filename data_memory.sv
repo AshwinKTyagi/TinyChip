@@ -1,4 +1,4 @@
-module data_memory (
+odule data_memory (
 	input[7:0] addr, // change size of address depending on size of memory
 	input[7:0] write_data, // data to be written in mem
 	input mem_read, mem_write, clk,

@@ -1,10 +1,10 @@
 module program_counter(
-	input[31:0] jump_target,
+	input[8:0] jump_target,
 	input reset, clk, write,
-	output logic[31:0] result	
+	output logic[8:0] result	
 );
 	//pc local variables
-	logic[31:0] current, next;
+	logic[8:0] current, next;
 
 	initial begin
 		current <= '0;
@@ -19,7 +19,7 @@ module program_counter(
 			if(write)
 				next = jump_target;
 			else 
-				next = current + 4;
+				next = current + 1; //instructions stored in 2d array so only need to increment by 1
 			current = next;
 		end
 	end
