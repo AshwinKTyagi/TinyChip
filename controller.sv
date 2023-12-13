@@ -6,12 +6,12 @@
 `include "instruction_memory.sv"
 module controller (
 	input logic clk, reset,
-	output logic[8:0] output_data
+	output logic done
 	); 
 	
 	
 	//local controller variables
-	logic[8:0] out;
+	logic[8:0] out; //output from last command(used for branching)
 	
 	//pc variables
 	logic pc_write = 0;
@@ -25,25 +25,24 @@ module controller (
 	logic[2:0] immed_val;
 	logic bit_type;
 	logic[2:0] opcode;
-	logic[1:0] funct;
+	logic funct;
 	
 	//output from alu
-	logic[3:0] alu_out;
+	logic[15:0] alu_out;
 	
 	//changing these variables will cause updates in alu and rf_module
-	logic[7:0] alu_data2, data_to_reg; 
-	logic[1:0] reg_write;
-	logic do_write;
+	logic[15:0] alu_data2, data_to_reg;
+	logic reg_write;
 	//output from register file module
-	logic[7:0] data1, data2;
+	logic[15:0] data1, data2;
 	
 	//changing these will update data_memory
-	logic[7:0] data_address;
-	logic[7:0] data_to_mem;
+	logic[5:0] data_address;
+	logic[5:0] data_to_mem;
 	logic mem_read = 0;
 	logic mem_write = 0;
 	//output from data_memory file
-	logic[7:0] data_from_mem;
+	logic[15:0] data_from_mem;
 
 	
 	//program counter
@@ -79,10 +78,9 @@ module controller (
 	register_file rf_module(
 		.reg1(reg_dest),
 		.reg2(reg_op),
-		.reg_w(reg_write),
 		.clk(clk),
 		.reset(reset),
-		.do_write(do_write),
+		.write(reg_write)
 		.write_data(data_to_reg),
 		//outputs
 		.data1(data1),
@@ -90,7 +88,7 @@ module controller (
 	);
 	
 	//handle alu
-	alu_core #(.N(8)) alu_module (
+	alu_core #(.N(16)) alu_module (
 		.operand1(data1),
 		.operand2(alu_data2),
 		.operation(opcode),
@@ -111,12 +109,10 @@ module controller (
 
 	
 	always@(posedge clk) begin // for bit type 1: addi, store funct name, beq, bne
-			
+		reg_write = 0;
 		if(bit_type) begin //bit_type = 1 --> immeditate
-			immed_val <= {reg_op, funct);
+			immed_val <= {reg_op, funct};
 			case(opcode) 
-
-				
 				3'b010: //beq - TODO: needs implementation for taking the branch
 					out <= (data1 == immed_val);
 				3'b011: //bne
@@ -124,36 +120,47 @@ module controller (
 				3'b100: begin//lw: load word -- data_memory
 					mem_read <= 1;
 					mem_write <= 0;
-					data_address <= data2;
-					out <= data_from_mem;
+					data_address <= data2[5:0];
+					reg_write = 1;
+					data_to_reg <= data_from_mem;
 				end
 				3'b101: begin//sw: store word -- data memory
 					mem_read <= 0;
 					mem_write <= 1;
-					data_to_mem <= data2;
-					data_address <= data1;
-					out <= data2;
+					data_to_mem <= {'0, data2};
+					data_address <= data1[5:0];
 				end
-				3'b110: //shift right
-					out <= data1 >>> immed_val;
-				3'b111: //shift left
-					out <= data1 <<< immed_val;
+				3'b110: begin//shift right
+					reg_write = 1;
+					data_to_reg <= {'0, data1 >>> immed_val};
+				end
+				3'b111: begin //shift left
+					reg_write = 1;
+					data_to_reg <={'0, data1 <<< immed_val};
+				end
 				default: begin
 					alu_data2 <= {'0, immed_val, funct};
-					out <= alu_out; //handles addi,
+					reg_write = 1;
+					data_to_reg <= alu_out; //handles addi
 				end
 			endcase
 		end
 		else begin //bit_type  = 0 --> register
 			//TODO: update dat2 to get contents from reg2
-			case({funct, opcode}) //when funct = 1, 000->j, 
+			case({funct, opcode}) //when funct = 1, 000->j, 101->clr reg,
 				4'b1000: begin //jump when funct bit 1 and opcode 0
-					jump <= data2;
+					jump <= data2[7:0];
 					out <= pc_result;
+				end
+				4'b1101: begin //mult by 0(clears a register)
+					alu_data2 <= '0;
+					reg_write = 1;
+					data_to_reg <= alu_out;
 				end
 				default: begin
 					alu_data2 <= data2;
-					out <= alu_out;
+					reg_write = 1;
+					data_to_reg <= alu_out;
 				end
 			endcase
 		end
@@ -161,5 +168,7 @@ module controller (
 		
 	end
 	
-	assign output_data = out;
+	assign done = 1;
+	
+	
 endmodule: controller

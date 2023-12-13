@@ -1,65 +1,51 @@
-module register_file_testbench;
+module register_file_tb;
 
-    reg [1:0] reg1, reg2, reg_write;
-    reg clk, reset, do_write;
-    reg [7:0] write_data;
-    wire [7:0] data1, data2;
+  reg [1:0] reg1, reg2;
+  reg clk, reset, write;
+  reg [15:0] write_data;
+  wire [15:0] data1, data2;
 
-    // Instantiate the register_file module
-    register_file RF (
-        .reg1(reg1),
-        .reg2(reg2),
-        .reg_w(reg_write),
-        .clk(clk),
-        .reset(reset),
-		  .do_write(do_write),
-        .write_data(write_data),
-        .data1(data1),
-        .data2(data2)
-    );
+  // Instantiate the register_file module
+  register_file uut (
+    .reg1(reg1),
+    .reg2(reg2),
+    .clk(clk),
+    .reset(reset),
+    .write(write),
+    .write_data(write_data),
+    .data1(data1),
+    .data2(data2)
+  );
 
-    always begin
-        #5 clk = ~clk;
-    end
+  // Clock generation
+  initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+  end
 
+  // Initial stimulus
+  initial begin
+    // Initialize signals
+    reg1 = 2'b00; // Example register 0
+    reg2 = 2'b01; // Example register 1
+    reset = 1;
+    write = 0;
 
-    initial begin
-        reset = 1;
-        clk = 0;
-        write_data = 8'b11001100;
-        reg_write = 3'b001;
-        reg1 = 3'b000;
-        reg2 = 3'b001;
+    // Apply reset
+    #10 reset = 0;
 
-        
-		  #10 reset = 0;
-		  do_write = 0;
-        
-		  
-		  #10 
-		  do_write = 1;
-		  reg_write = 2'b01;
-        write_data = 8'b10101010;
-		  
-		  
-        #10 do_write = 0; 
-		  reg1 = 2'b01;
-        reg2 = 2'b10;
+    // Write data to registers
+    #20 write = 1;
+    #30 write_data = 16'hABCD; // Writing data to register 0
+    #40 write = 0;
 
-        // Add more test cases here as needed
-		  
-		  #10 do_write = 1;
-		  reg_write = 2'b11;
-		  write_data = 8'b11111111;
-		  reg2 = 3'b00;
-			
-		
+    // Read data from registers
+    #60 reg1 = 2'b10; // Example register 2
+    #70 reg2 = 2'b11; // Example register 3
 
-        $finish;
-    end
+    // Add more test scenarios as needed
 
-    always @(posedge clk) begin
-        $display("Time=%t, Data1=%h, Data2=%h", $time, data1, data2);
-    end
+    #100 $finish; // End simulation
+  end
 
-endmodule
+endmodule: register_file_tb

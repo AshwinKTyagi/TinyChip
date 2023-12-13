@@ -4,13 +4,13 @@ module controller_testbench;
 
     // Testbench Signals
     logic clk, reset;
-    logic[8:0] output_data;
+    logic done;
 
     // Instantiate the controller module
     controller uut (
         .clk(clk),
         .reset(reset),
-        .output_data(output_data)
+        .done(done)
     );
 
     // Clock generation
@@ -27,8 +27,8 @@ module controller_testbench;
     end
 
     initial begin
-        $monitor("Time = %0t, clk = %0b, reset = %0b, output_data = %0h",
-                 $time, clk, reset, output_data);
+        $monitor("Time = %0t, clk = %0b, reset = %0b, done = %0h",
+                 $time, clk, reset, done);
     end
 
 endmodule
