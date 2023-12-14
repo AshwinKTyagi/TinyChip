@@ -32,8 +32,9 @@ module controller (
 	logic[15:0] alu_out;
 	
 	//changing these variables will cause updates in alu and rf_module
-	logic[15:0] alu_data1, alu_data2, data_to_reg;
-	logic reg_write;
+	logic[15:0] alu_data1, alu_data2;
+	logic[15:0] data_to_reg = '0;
+	logic reg_write = 0;
 	//output from register file module
 	logic[15:0] data1, data2;
 	
@@ -104,54 +105,48 @@ module controller (
 		.write_data(data_to_mem),
 		.mem_read(mem_read),
 		.mem_write(mem_write),
+		.clk(clk),
 		//outputs
 		.read_data(data_from_mem)
 	);
+
 	
-	initial begin
-		mem_read = 0;
-		mem_write = 0;
-		eof = 0;
-		reg_write = 0;
-	
-	end
-	
-	always_ff @(negedge clk) begin // for bit type 1: addi, store funct name, beq, bne
+	always @(negedge clk) begin // for bit type 1: addi, store funct name, beq, bne
 		if(bit_type) begin //bit_type = 1 --> immeditate
 			immed_val <= {reg_op, funct};
 			case(opcode) 
 				3'b010: begin//beq - TODO: needs implementation for taking the branch
-					reg_write <= 0;
-					out <= (data1 == immed_val);
+					reg_write = 0;
+					out = (data1 == immed_val);
 				end
 				3'b011: //bne
-					out <= (data1 != immed_val);
+					out = (data1 != immed_val);
 				3'b100: begin//lw: load word -- data_memory
-					mem_read <= 1;
-					mem_write <= 0;
-					data_address <= data2[5:0];
-					reg_write <= 1;
-					data_to_reg <= data_from_mem;
+					mem_read = 1;
+					mem_write = 0;
+					data_address = data2[5:0];
+					reg_write = 1;
+					data_to_reg = data_from_mem;
 				end
 				3'b101: begin//sw: store word -- data memory
-					mem_read <= 0;
-					mem_write <= 1;
-					data_to_mem <= {'0, data2};
-					data_address <= data1[5:0];
+					mem_read = 0;
+					mem_write = 1;
+					data_to_mem = {'0, data2};
+					data_address = data1[5:0];
 				end
 				3'b110: begin//shift right
-					reg_write = 1;
-					data_to_reg <= {'0, data1 >>> immed_val};
+					reg_write = ~reg_write;
+					data_to_reg = {'0, data1 >>> immed_val};
 				end
 				3'b111: begin //shift left
-					reg_write = 1;
-					data_to_reg <= {'0, data1 <<< immed_val};
+					reg_write = ~reg_write;
+					data_to_reg = {'0, data1 <<< immed_val};
 				end
 				default: begin
-					alu_data1 <= '0;
-					alu_data2 <= {13'b0, reg_op, funct};
-					reg_write <= 1;
-					data_to_reg <= alu_out; //handles addi
+					alu_data1 = {'0, data1};
+					alu_data2 = {13'b0, reg_op, funct};
+					reg_write = ~reg_write;
+					data_to_reg = alu_out; //handles addi
 				end
 			endcase
 		end
@@ -159,18 +154,18 @@ module controller (
 			//TODO: update dat2 to get contents from reg2
 			case({funct, opcode}) //when funct = 1, 000->j, 101->clr reg,
 				4'b1000: begin //jump when funct bit 1 and opcode 0
-					jump <= data2[7:0];
-					out <= pc_result;
+					jump = data2[7:0];
+					out = pc_result;
 				end
 				4'b1101: begin //mult by 0(clears a register)
-					alu_data2 <= '0;
-					reg_write <= 1;
-					data_to_reg <= alu_out;
+					alu_data2 = '0;
+					reg_write = 1;
+					data_to_reg = alu_out;
 				end
 				default: begin
-					alu_data2 <= data2;
-					reg_write <= 1;
-					data_to_reg <= alu_out;
+					alu_data2 = data2;
+					reg_write = ~reg_write;
+					data_to_reg = alu_out;
 				end
 			endcase
 		end

@@ -19,7 +19,7 @@ module controller_testbench;
     // Test sequence
     initial begin
         // Initialize testbench variables
-        clk = 0;
+        clk = 1;
         reset = 0;
 
         // Finish the simulation

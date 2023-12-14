@@ -17,24 +17,31 @@ module register_file (
 		registers[3] <= '0;
 	end 
 	
-	always @(posedge clk) begin
-	
-		d1 <= registers[reg1];
-		d2 <= registers[reg2];				
-	
+	always_comb begin
+		case(reg1)
+			2'b00: d1 <= registers[0];
+			2'b01: d1 <= registers[1];
+			2'b10: d1 <= registers[2];
+			2'b11: d1 <= registers[3];			
+		endcase
 	end
-
 	
-	always @(negedge clk or posedge reset) begin
-		if(reset) begin
-			registers[0] <= '0;
-			registers[1] <= '0;
-			registers[2] <= '0;
-			registers[3] <= '0;
-		end
-		else if(write)
-			registers[reg1] <= write_data;
-			
+	always_comb begin
+		case(reg2)
+			2'b00: d2 <= registers[0];
+			2'b01: d2 <= registers[1];
+			2'b10: d2 <= registers[2];
+			2'b11: d2 <= registers[3];			
+		endcase
+	end
+		
+	always @(write) begin
+		case(reg1)
+			2'b00: registers[0] <= write_data;
+			2'b01: registers[1] <= write_data;
+			2'b10: registers[2] <= write_data;
+			2'b11: registers[3] <= write_data;	
+		endcase
 	end
 	
 	assign data1 = d1;
