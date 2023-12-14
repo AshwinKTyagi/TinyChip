@@ -7,17 +7,24 @@ module data_memory (
 );
 
 	logic[15:0] mem[0:63];
-	
 	logic[15:0] rd;
-
+	logic last_read;
+	
 	always @(posedge clk) begin
 		if(mem_write)
 			mem[addr] <= write_data;
 		
-		if(mem_read)
-			rd <= mem[addr];
-	end 
+		last_read <= mem_read;
 		
+	end 
+	
+	always_comb begin
+		if(last_read != mem_read)
+			rd <= mem[addr];
+		else
+			rd <= mem[addr];
+	end
+	
 	assign read_data = rd;
 	
 endmodule: data_memory

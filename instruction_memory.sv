@@ -33,9 +33,9 @@ module instruction_memory (
 	
 	always_comb begin
 		if(addr != last_addr) 
-			instruct <= mem[addr];
+			instruct <= mem[last_addr];
 		else
-			instruct <= mem[addr];
+			instruct <= mem[last_addr];
 
 	end
 	

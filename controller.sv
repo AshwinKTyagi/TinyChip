@@ -111,41 +111,74 @@ module controller (
 	);
 
 	
-	always @(posedge clk) begin // for bit type 1: addi, store funct name, beq, bne
+	always_comb begin // for bit type 1: addi, store funct name, beq, bne
+		immed_val <= {reg_op, funct};
 		if(bit_type) begin //bit_type = 1 --> immeditate
-			immed_val <= {reg_op, funct};
 			case(opcode) 
-				3'b010: begin//beq - TODO: needs implementation for taking the branch
-					out = (data1 == immed_val);
-				end
-				3'b011: //bne
-					out = (data1 != immed_val);
+//				3'b010: begin//beq - TODO: needs implementation for taking the branch
+//					out = (data1 == immed_val);
+//				end
+//				3'b011: //bne
+//					out = (data1 != immed_val);
 				3'b100: begin//lw: load word -- data_memory
 					mem_read = 1;
 					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = '0;
+					data_to_mem = '0;
+					alu_data1 = '0;
+					alu_data2 = '0;
 					data_address = data2[5:0];
-					reg_write = ~reg_write;
 					data_to_reg = data_from_mem;
 				end
 				3'b101: begin//sw: store word -- data memory
 					mem_read = 0;
 					mem_write = 1;
+					reg_write = 0;
+					pc_write = 0;
+					jump = '0;
+					alu_data1 = '0;
+					alu_data2 = '0;
+					data_to_reg = data2;
 					data_to_mem =  data2;
 					data_address = data1[5:0];
 				end
 				3'b110: begin//shift right
-					reg_write = ~reg_write;
-					data_to_reg = {'0, data1 >>> immed_val};
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = '0;
+					alu_data1 = '0;
+					alu_data2 = '0;
+					data_to_reg = data1 >>> immed_val;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 				3'b111: begin //shift left
-					reg_write = ~reg_write;
-					data_to_reg = {'0, data1 <<< immed_val};
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = '0;
+					alu_data1 = '0;
+					alu_data2 = '0;
+					data_to_reg = data1 <<< immed_val;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 				default: begin
-					alu_data1 = {'0, data1};
-					alu_data2 = {13'b0, reg_op, funct};
-					reg_write = ~reg_write;
-					data_to_reg = alu_out; //handles addi
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = '0;
+					alu_data1 = data1;
+					alu_data2 =  {13'b0, reg_op, funct};
+					data_to_reg = alu_out;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 			endcase
 		end
@@ -153,26 +186,60 @@ module controller (
 			//TODO: update dat2 to get contents from reg2
 			case({funct, opcode}) //when funct = 1, 000->j, 101->clr reg,
 				4'b1000: begin //jump when funct bit 1 and opcode 0
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 0;
+					pc_write = 1;
 					jump = data2[7:0];
-					out = pc_result;
+					alu_data1 = '0;
+					alu_data2 =  '0;
+					data_to_reg = alu_out;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 				4'b1101: begin //mult by 0(clears a register)
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = data2[7:0];
 					alu_data1 = data1;
-					alu_data2 = '0;
-					reg_write = ~reg_write;
+					alu_data2 =  '0;
 					data_to_reg = alu_out;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 				default: begin
+					mem_read = 0;
+					mem_write = 0;
+					reg_write = 1;
+					pc_write = 0;
+					jump = data2[7:0];
 					alu_data1 = data1;
-					alu_data2 = data2;
-					reg_write = ~reg_write;
+					alu_data2 =  data2;
 					data_to_reg = alu_out;
+					data_to_mem =  data2;
+					data_address = 5'b11111;
 				end
 			endcase
 		end
 		
 		
 	end
+	
+//	to impl comb:
+//					pc_write = '0;
+//					mem_read = 0;
+//					mem_write = 0;
+//					reg_write = 0;
+//					jump = '0;
+//					data_to_mem 
+//					data_to_reg
+//					data_address
+//					alu_data1
+//					alu_data2
+					
+
 	
 	assign done = eof;
 	

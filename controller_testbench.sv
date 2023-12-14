@@ -23,7 +23,7 @@ module controller_testbench;
         reset = 0;
 
         // Finish the simulation
-        #300 $finish;
+        #200 $finish;
     end
 
     initial begin
