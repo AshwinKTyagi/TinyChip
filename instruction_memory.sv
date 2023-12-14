@@ -10,6 +10,7 @@ module instruction_memory (
 	
 	initial begin
 		//init memory
+		last_addr = '0;
 		mem[0] = 9'b100001111; //add #7 to r1
 		mem[1] = 9'b100001111; //add #7 to r1
 		mem[2] = 9'b110101011; //str r3 from mem #3
@@ -31,7 +32,7 @@ module instruction_memory (
 	
 	always_comb begin
 		if(addr != last_addr) 
-			instruct <= mem[last_addr];
+			instruct <= mem[addr];
 		else
 			instruct <= mem[addr];
 
