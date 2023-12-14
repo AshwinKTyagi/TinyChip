@@ -19,6 +19,7 @@ module controller (
 	
 	//instruction handling
 	logic[8:0] instruction;
+	logic eof;
 	
 	//output from cd_module
 	logic[1:0] reg_dest, reg_op;
@@ -31,7 +32,7 @@ module controller (
 	logic[15:0] alu_out;
 	
 	//changing these variables will cause updates in alu and rf_module
-	logic[15:0] alu_data2, data_to_reg;
+	logic[15:0] alu_data1, alu_data2, data_to_reg;
 	logic reg_write;
 	//output from register file module
 	logic[15:0] data1, data2;
@@ -59,7 +60,8 @@ module controller (
 		.addr(pc_result),
 		.clk(clk),
 		.reset(reset),
-		.instruct(instruction)
+		.instruct(instruction),
+		.done(eof)
 	);
 	
 	//decode instructions
@@ -80,7 +82,7 @@ module controller (
 		.reg2(reg_op),
 		.clk(clk),
 		.reset(reset),
-		.write(reg_write)
+		.write(reg_write),
 		.write_data(data_to_reg),
 		//outputs
 		.data1(data1),
@@ -89,7 +91,7 @@ module controller (
 	
 	//handle alu
 	alu_core #(.N(16)) alu_module (
-		.operand1(data1),
+		.operand1(alu_data1),
 		.operand2(alu_data2),
 		.operation(opcode),
 		//outputs
@@ -106,22 +108,29 @@ module controller (
 		.read_data(data_from_mem)
 	);
 	
-
-	
-	always@(posedge clk) begin // for bit type 1: addi, store funct name, beq, bne
+	initial begin
+		mem_read = 0;
+		mem_write = 0;
+		eof = 0;
 		reg_write = 0;
+	
+	end
+	
+	always_ff @(negedge clk) begin // for bit type 1: addi, store funct name, beq, bne
 		if(bit_type) begin //bit_type = 1 --> immeditate
 			immed_val <= {reg_op, funct};
 			case(opcode) 
-				3'b010: //beq - TODO: needs implementation for taking the branch
+				3'b010: begin//beq - TODO: needs implementation for taking the branch
+					reg_write <= 0;
 					out <= (data1 == immed_val);
+				end
 				3'b011: //bne
 					out <= (data1 != immed_val);
 				3'b100: begin//lw: load word -- data_memory
 					mem_read <= 1;
 					mem_write <= 0;
 					data_address <= data2[5:0];
-					reg_write = 1;
+					reg_write <= 1;
 					data_to_reg <= data_from_mem;
 				end
 				3'b101: begin//sw: store word -- data memory
@@ -136,11 +145,12 @@ module controller (
 				end
 				3'b111: begin //shift left
 					reg_write = 1;
-					data_to_reg <={'0, data1 <<< immed_val};
+					data_to_reg <= {'0, data1 <<< immed_val};
 				end
 				default: begin
-					alu_data2 <= {'0, immed_val, funct};
-					reg_write = 1;
+					alu_data1 <= '0;
+					alu_data2 <= {13'b0, reg_op, funct};
+					reg_write <= 1;
 					data_to_reg <= alu_out; //handles addi
 				end
 			endcase
@@ -154,12 +164,12 @@ module controller (
 				end
 				4'b1101: begin //mult by 0(clears a register)
 					alu_data2 <= '0;
-					reg_write = 1;
+					reg_write <= 1;
 					data_to_reg <= alu_out;
 				end
 				default: begin
 					alu_data2 <= data2;
-					reg_write = 1;
+					reg_write <= 1;
 					data_to_reg <= alu_out;
 				end
 			endcase
@@ -168,7 +178,7 @@ module controller (
 		
 	end
 	
-	assign done = 1;
+	assign done = eof;
 	
 	
 endmodule: controller

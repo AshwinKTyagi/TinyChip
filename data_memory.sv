@@ -10,7 +10,7 @@ module data_memory (
 	
 	logic[15:0] rd;
 
-	always@(posedge clk) begin
+	always @(posedge clk) begin
 		if(mem_write)
 			mem[addr] <= write_data;
 		

@@ -28,6 +28,7 @@ module register_file_tb;
     // Initialize signals
     reg1 = 2'b00; // Example register 0
     reg2 = 2'b01; // Example register 1
+	 write_data = '0;
     reset = 1;
     write = 0;
 
@@ -35,7 +36,7 @@ module register_file_tb;
     #10 reset = 0;
 
     // Write data to registers
-    #20 write = 1;
+    #30 write = 1;
     #30 write_data = 16'hABCD; // Writing data to register 0
     #40 write = 0;
 

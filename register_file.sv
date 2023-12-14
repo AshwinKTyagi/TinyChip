@@ -15,9 +15,17 @@ module register_file (
 		registers[1] <= '0;
 		registers[2] <= '0;
 		registers[3] <= '0;
+	end 
+	
+	always @(posedge clk) begin
+	
+		d1 <= registers[reg1];
+		d2 <= registers[reg2];				
+	
 	end
 
-	always@(negedge clk or posedge reset) begin
+	
+	always @(negedge clk or posedge reset) begin
 		if(reset) begin
 			registers[0] <= '0;
 			registers[1] <= '0;
@@ -28,12 +36,7 @@ module register_file (
 			registers[reg1] <= write_data;
 			
 	end
-	always@(posedge clk) begin
-		d1 <= registers[reg1];
-		d2 <= registers[reg2];				
 	
-	end
-
 	assign data1 = d1;
 	assign data2 = d2;
 

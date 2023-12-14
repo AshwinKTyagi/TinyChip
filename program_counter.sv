@@ -11,7 +11,7 @@ module program_counter(
 		next <= '0;
 	end
 
-	always@(posedge clk or posedge reset)
+	always @(posedge clk or posedge reset)
 	begin
 		if(reset)
 			next = '0;
@@ -19,7 +19,7 @@ module program_counter(
 			if(write)
 				next = jump_target;
 			else 
-				next = current + 1; //instructions stored in 2d array so only need to increment by 1
+				next = current + 1'b1; //instructions stored in 2d array so only need to increment by 1
 			current = next;
 		end
 	end
