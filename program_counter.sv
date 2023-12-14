@@ -10,7 +10,7 @@ module program_counter(
 		current <= '0;
 		next <= '0;
 	end
-
+	//change this to always_comb and increment pc somewhere else?
 	always @(posedge clk or posedge reset)
 	begin
 		if(reset)

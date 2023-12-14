@@ -6,7 +6,7 @@ module instruction_memory (
 );
 
 	logic[8:0] mem[0:255];
-	logic d;
+	logic[7:0] last_addr;
 	
 	initial begin
 		//init memory
@@ -19,14 +19,22 @@ module instruction_memory (
 	end
 
 	always @(posedge clk or posedge reset) begin
-		if (reset)
-			instruct <= 9'b000000000;
-		else
-			instruct <= mem[addr];
-			
-			d <= (mem[addr] == 9'bx);
+		if (reset) begin
+			last_addr <= '0;
+			done = 1;
+		end
+		else begin
+			last_addr <= addr;
+			done <= (mem[addr] == 'bx);
+		end
 	end
 	
-	assign done = d;
+	always_comb begin
+		if(addr != last_addr) 
+			instruct <= mem[last_addr];
+		else
+			instruct <= mem[addr];
+
+	end
 	
 endmodule: instruction_memory
