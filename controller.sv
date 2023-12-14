@@ -40,7 +40,7 @@ module controller (
 	
 	//changing these will update data_memory
 	logic[5:0] data_address;
-	logic[5:0] data_to_mem;
+	logic[15:0] data_to_mem;
 	logic mem_read = 0;
 	logic mem_write = 0;
 	//output from data_memory file
@@ -111,7 +111,7 @@ module controller (
 	);
 
 	
-	always @(clk) begin // for bit type 1: addi, store funct name, beq, bne
+	always @(posedge clk) begin // for bit type 1: addi, store funct name, beq, bne
 		if(bit_type) begin //bit_type = 1 --> immeditate
 			immed_val <= {reg_op, funct};
 			case(opcode) 
@@ -124,12 +124,13 @@ module controller (
 					mem_read = 1;
 					mem_write = 0;
 					data_address = data2[5:0];
+					reg_write = ~reg_write;
 					data_to_reg = data_from_mem;
 				end
 				3'b101: begin//sw: store word -- data memory
 					mem_read = 0;
 					mem_write = 1;
-					data_to_mem = {'0, data2};
+					data_to_mem =  data2;
 					data_address = data1[5:0];
 				end
 				3'b110: begin//shift right
