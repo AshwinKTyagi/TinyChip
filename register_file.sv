@@ -8,8 +8,6 @@ module register_file (
 
 	//only 4 registers used indexed using 2 bits
 	logic[15:0] registers[0:3];
-	logic[15:0] d1, d2;
-	logic last_write = 0;
 	
 	initial begin
 		registers[0] <= '0;
