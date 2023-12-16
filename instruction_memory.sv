@@ -11,16 +11,9 @@ module instruction_memory (
 	initial begin
 		//init memory
 		last_addr = '0;
-		mem[0] = 9'b100001100; //add #4 to r1
-		mem[1] = 9'b010101010; //mult r1 by itself
-		mem[2] = 9'b100000000; //loop defined
-		mem[3] = 9'b100010010; //add r2 by 2
-		mem[4] = 9'b001001101; //sub r1 by r2 -- dont store result
-		mem[5] = 9'b101100000; //beq to index 0 of pclut if ^ != 0
-		mem[6] = 9'b010101001; //clear reg1
-		mem[7] = 9'b100000001; //done
-		//change to read in from file with instructions in it
-		//$readmemh("code.txt",mem);
+		//this shit is dumb but change w full path of file
+		$readmemb("//amznfsx7umcv4bw.AD.UCSD.EDU/share/users/aktyagi/Desktop/TinyChip/TinyChip/prog1_instructs.txt",mem);
+		
 	end
 
 	always @(posedge clk or posedge reset) begin
